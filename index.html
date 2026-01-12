@@ -474,11 +474,10 @@
     </div>
 
     <script>
-        const repoPath = window.location.pathname.split('/').filter(Boolean);
-        const username = repoPath[0] || 'USERNAME';
-        const repo = repoPath[1] || 'REPO';
-        const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${username}/${repo}/main/`;
-        const GITHUB_API_URL = `https://api.github.com/repos/${username}/${repo}/contents/`;
+        // Daftar file yang tersedia (hardcoded)
+        const availableFiles = [
+            'file1.txt'
+        ];
 
         let allFiles = [];
         let currentSlug = '';
@@ -507,35 +506,23 @@
             return match ? match[1] : null;
         }
 
-        async function detectTxtFiles() {
-            try {
-                loading.classList.add('show');
-                
-                const response = await fetch(GITHUB_API_URL);
-                
-                if (!response.ok) {
-                    throw new Error('Tidak dapat mengakses repository');
-                }
-                
-                const files = await response.json();
-                allFiles = files
-                    .filter(file => file.name.endsWith('.txt'))
-                    .map(file => file.name)
-                    .sort();
+        function detectTxtFiles() {
+            loading.classList.add('show');
+            
+            setTimeout(() => {
+                allFiles = availableFiles.filter(file => file.endsWith('.txt')).sort();
                 
                 if (allFiles.length === 0) {
-                    throw new Error('Tidak ada file .txt ditemukan di repository');
+                    loading.classList.remove('show');
+                    showError('❌ Tidak ada file .txt ditemukan');
+                    return;
                 }
                 
                 updateStats();
                 renderFileList(allFiles);
                 loading.classList.remove('show');
                 fileList.classList.add('show');
-                
-            } catch (err) {
-                loading.classList.remove('show');
-                showError('❌ ' + err.message);
-            }
+            }, 500);
         }
 
         function updateStats() {
@@ -701,8 +688,8 @@
             result.classList.remove('show');
             
             try {
-                const url = GITHUB_RAW_URL + fileName;
-                const response = await fetch(url);
+                // Ambil file langsung dari folder yang sama dengan HTML ini
+                const response = await fetch(fileName);
                 
                 if (!response.ok) {
                     throw new Error('File tidak dapat diakses');

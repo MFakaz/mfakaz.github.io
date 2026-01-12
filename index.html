@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
@@ -35,52 +35,70 @@
             font-weight: 700;
         }
 
-        .select-wrapper {
+        .search-wrapper {
             margin-bottom: 20px;
+            position: relative;
         }
 
-        label {
-            display: block;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        select {
+        .search-input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px 16px 14px 44px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 16px;
-            background: white;
-            cursor: pointer;
             transition: all 0.2s;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 20px;
-            padding-right: 40px;
         }
 
-        select:focus {
+        .search-input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        select:disabled {
-            background-color: #f7fafc;
-            cursor: not-allowed;
-            opacity: 0.6;
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 18px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 140px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
         }
 
         .loading {
             text-align: center;
             color: #667eea;
             font-weight: 600;
-            padding: 20px;
+            padding: 40px;
             display: none;
         }
 
@@ -100,6 +118,75 @@
         }
 
         .error.show {
+            display: block;
+        }
+
+        .file-list {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .file-list.show {
+            display: block;
+        }
+
+        .list-header {
+            background: #f7fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .file-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+            transform: translateX(4px);
+        }
+
+        .file-item.active {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #2d3748;
+            font-size: 15px;
+        }
+
+        .file-icon {
+            color: #a0aec0;
+            font-size: 18px;
+        }
+
+        .file-item.active .file-icon {
+            color: #667eea;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            display: none;
+        }
+
+        .no-results.show {
             display: block;
         }
 
@@ -264,6 +351,14 @@
                 font-size: 20px;
                 margin-bottom: 20px;
             }
+
+            .stat-card {
+                min-width: 100px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
             
             .btn-copy {
                 padding: 16px;
@@ -280,16 +375,40 @@
 <body>
     <div class="container">
         <h1>📋 Comic Slug Copier</h1>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Files</div>
+                <div class="stat-value" id="totalFiles">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Chapters</div>
+                <div class="stat-value" id="totalChapters">0</div>
+            </div>
+        </div>
         
-        <div class="select-wrapper">
-            <label for="fileSelect">Pilih File Komik:</label>
-            <select id="fileSelect" disabled>
-                <option value="">Loading...</option>
-            </select>
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input" 
+                placeholder="Cari file komik..."
+                autocomplete="off"
+            >
         </div>
 
-        <div id="loading" class="loading">⏳ Memuat...</div>
+        <div id="loading" class="loading">⏳ Memuat file...</div>
         <div id="error" class="error"></div>
+
+        <div id="fileList" class="file-list">
+            <div class="list-header">📁 Daftar File Komik</div>
+            <div id="fileListContainer"></div>
+            <div id="noResults" class="no-results">
+                <div style="font-size: 48px; margin-bottom: 12px;">🔍</div>
+                <div>Tidak ada file yang ditemukan</div>
+            </div>
+        </div>
 
         <div id="result" class="result-section">
             <div class="box">
@@ -317,31 +436,35 @@
     </div>
 
     <script>
-        // Auto-detect GitHub repo info dari URL
         const repoPath = window.location.pathname.split('/').filter(Boolean);
         const username = repoPath[0] || 'USERNAME';
         const repo = repoPath[1] || 'REPO';
         const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${username}/${repo}/main/`;
         const GITHUB_API_URL = `https://api.github.com/repos/${username}/${repo}/contents/`;
 
+        let allFiles = [];
         let currentSlug = '';
         let currentImgCode = '';
+        let selectedFile = null;
 
-        const fileSelect = document.getElementById('fileSelect');
+        const searchInput = document.getElementById('searchInput');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
+        const fileList = document.getElementById('fileList');
+        const fileListContainer = document.getElementById('fileListContainer');
+        const noResults = document.getElementById('noResults');
         const result = document.getElementById('result');
         const slugDisplay = document.getElementById('slugDisplay');
         const imgCodeDisplay = document.getElementById('imgCodeDisplay');
         const copySlugBtn = document.getElementById('copySlugBtn');
         const copyImgBtn = document.getElementById('copyImgBtn');
         const toast = document.getElementById('toast');
+        const totalFilesEl = document.getElementById('totalFiles');
+        const totalChaptersEl = document.getElementById('totalChapters');
 
-        // Deteksi semua file .txt di repository
         async function detectTxtFiles() {
             try {
                 loading.classList.add('show');
-                fileSelect.disabled = true;
                 
                 const response = await fetch(GITHUB_API_URL);
                 
@@ -350,36 +473,87 @@
                 }
                 
                 const files = await response.json();
-                const txtFiles = files
+                allFiles = files
                     .filter(file => file.name.endsWith('.txt'))
                     .map(file => file.name)
                     .sort();
                 
-                if (txtFiles.length === 0) {
+                if (allFiles.length === 0) {
                     throw new Error('Tidak ada file .txt ditemukan di repository');
                 }
                 
-                populateFileSelect(txtFiles);
+                updateStats();
+                renderFileList(allFiles);
                 loading.classList.remove('show');
+                fileList.classList.add('show');
                 
             } catch (err) {
                 loading.classList.remove('show');
                 showError('❌ ' + err.message);
-                fileSelect.innerHTML = '<option value="">Error loading files</option>';
             }
         }
 
-        function populateFileSelect(files) {
-            fileSelect.innerHTML = '<option value="">-- Pilih file .txt --</option>';
+        function updateStats() {
+            totalFilesEl.textContent = allFiles.length;
             
-            files.forEach(file => {
-                const option = document.createElement('option');
-                option.value = file;
-                option.textContent = file.replace('.txt', '');
-                fileSelect.appendChild(option);
+            const chapterCount = allFiles.reduce((count, fileName) => {
+                const match = fileName.match(/chapter[_-]?(\d+)/i) || 
+                             fileName.match(/ch[_-]?(\d+)/i) ||
+                             fileName.match(/c(\d+)/i);
+                return count + (match ? 1 : 0);
+            }, 0);
+            
+            totalChaptersEl.textContent = chapterCount;
+        }
+
+        function renderFileList(files) {
+            fileListContainer.innerHTML = '';
+            
+            if (files.length === 0) {
+                noResults.classList.add('show');
+                return;
+            }
+            
+            noResults.classList.remove('show');
+            
+            files.forEach(fileName => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.dataset.file = fileName;
+                
+                const name = document.createElement('span');
+                name.className = 'file-name';
+                name.textContent = fileName.replace('.txt', '');
+                
+                const icon = document.createElement('span');
+                icon.className = 'file-icon';
+                icon.textContent = '📄';
+                
+                item.appendChild(name);
+                item.appendChild(icon);
+                
+                item.addEventListener('click', () => selectFile(fileName, item));
+                
+                fileListContainer.appendChild(item);
             });
+        }
+
+        async function selectFile(fileName, itemElement) {
+            if (selectedFile) {
+                selectedFile.classList.remove('active');
+            }
             
-            fileSelect.disabled = false;
+            selectedFile = itemElement;
+            selectedFile.classList.add('active');
+            
+            await loadFile(fileName);
+        }
+
+        function filterFiles(searchTerm) {
+            const filtered = allFiles.filter(file => 
+                file.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderFileList(filtered);
         }
 
         function parseContent(content) {
@@ -466,19 +640,12 @@
             }
         }
 
-        async function loadFile() {
-            const selectedFile = fileSelect.value;
-            
-            if (!selectedFile) {
-                return;
-            }
-            
-            loading.classList.add('show');
+        async function loadFile(fileName) {
             error.classList.remove('show');
             result.classList.remove('show');
             
             try {
-                const url = GITHUB_RAW_URL + selectedFile;
+                const url = GITHUB_RAW_URL + fileName;
                 const response = await fetch(url);
                 
                 if (!response.ok) {
@@ -494,17 +661,18 @@
                 slugDisplay.textContent = currentSlug;
                 imgCodeDisplay.textContent = currentImgCode;
                 
-                loading.classList.remove('show');
                 result.classList.add('show');
                 
+                result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
             } catch (err) {
-                loading.classList.remove('show');
                 showError('❌ Error: ' + err.message);
             }
         }
 
-        // Event Listeners
-        fileSelect.addEventListener('change', loadFile);
+        searchInput.addEventListener('input', (e) => {
+            filterFiles(e.target.value);
+        });
 
         copySlugBtn.addEventListener('click', () => {
             copyToClipboard(currentSlug, '✅ Slug berhasil disalin!');
@@ -514,7 +682,6 @@
             copyToClipboard(currentImgCode, '✅ Kode IMG berhasil disalin!');
         });
 
-        // Initialize
         detectTxtFiles();
     </script>
 </body>

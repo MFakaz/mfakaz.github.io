@@ -227,6 +227,60 @@
             display: block;
         }
 
+        .comic-title {
+            background: #f7fafc;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comic-title h2 {
+            color: #2d3748;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .comic-title p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .chapter-selector {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+
+        .chapter-selector label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .chapter-selector select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chapter-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
         .box {
             background: #f7fafc;
             padding: 20px;
@@ -407,6 +461,10 @@
                 font-size: 12px;
                 padding: 3px 10px;
             }
+
+            .comic-title h2 {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -449,6 +507,16 @@
         </div>
 
         <div id="result" class="result-section">
+            <div class="comic-title">
+                <h2 id="comicTitle"></h2>
+                <p id="comicChapterCount"></p>
+            </div>
+
+            <div class="chapter-selector">
+                <label for="chapterSelect">📖 Pilih Chapter</label>
+                <select id="chapterSelect"></select>
+            </div>
+
             <div class="box">
                 <h3><span class="icon">🔗</span> Slug Komik</h3>
                 <div class="content-display">
@@ -474,14 +542,12 @@
     </div>
 
     <script>
-        // Daftar file yang tersedia (hardcoded)
         const availableFiles = [
-            'file1.txt'
+            'file1.txt',
         ];
 
         let allFiles = [];
-        let currentSlug = '';
-        let currentImgCode = '';
+        let currentFileData = null;
         let selectedFile = null;
 
         const searchInput = document.getElementById('searchInput');
@@ -491,6 +557,9 @@
         const fileListContainer = document.getElementById('fileListContainer');
         const noResults = document.getElementById('noResults');
         const result = document.getElementById('result');
+        const comicTitle = document.getElementById('comicTitle');
+        const comicChapterCount = document.getElementById('comicChapterCount');
+        const chapterSelect = document.getElementById('chapterSelect');
         const slugDisplay = document.getElementById('slugDisplay');
         const imgCodeDisplay = document.getElementById('imgCodeDisplay');
         const copySlugBtn = document.getElementById('copySlugBtn');
@@ -528,10 +597,7 @@
         function updateStats() {
             totalFilesEl.textContent = allFiles.length;
             
-            const chapterCount = allFiles.reduce((count, fileName) => {
-                return count + (extractChapterNumber(fileName) ? 1 : 0);
-            }, 0);
-            
+            const chapterCount = currentFileData ? currentFileData.chapters.length : 0;
             totalChaptersEl.textContent = chapterCount;
         }
 
@@ -563,17 +629,7 @@
                 
                 fileInfo.appendChild(icon);
                 fileInfo.appendChild(name);
-                
-                const chapterNum = extractChapterNumber(fileName);
-                if (chapterNum) {
-                    const badge = document.createElement('span');
-                    badge.className = 'chapter-badge';
-                    badge.textContent = `Ch ${chapterNum}`;
-                    item.appendChild(fileInfo);
-                    item.appendChild(badge);
-                } else {
-                    item.appendChild(fileInfo);
-                }
+                item.appendChild(fileInfo);
                 
                 item.addEventListener('click', () => selectFile(fileName, item));
                 
@@ -600,29 +656,42 @@
         }
 
         function parseContent(content) {
-            const lines = content.trim().split('\n').filter(line => line.trim());
+            const lines = content.trim().split('\n').map(line => line.trim()).filter(line => line);
             
             if (lines.length < 2) {
                 throw new Error('Format file tidak valid');
             }
             
-            const comicTitle = lines[0].trim();
+            const title = lines[0];
+            const chapters = [];
+            let currentChapter = null;
             
-            const chapterMatch = lines[1].match(/\[Chapter\s+(\d+)\]/i);
-            if (!chapterMatch) {
-                throw new Error('Format chapter tidak valid. Gunakan format: [Chapter X]');
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                const chapterMatch = line.match(/\[Chapter\s+(\d+)\]/i);
+                
+                if (chapterMatch) {
+                    if (currentChapter) {
+                        chapters.push(currentChapter);
+                    }
+                    currentChapter = {
+                        number: chapterMatch[1],
+                        images: []
+                    };
+                } else if (currentChapter && (line.startsWith('http://') || line.startsWith('https://'))) {
+                    currentChapter.images.push(line);
+                }
             }
-            const chapterNum = chapterMatch[1];
             
-            const imageUrls = lines.slice(2).filter(line => 
-                line.startsWith('http://') || line.startsWith('https://')
-            );
-            
-            if (imageUrls.length === 0) {
-                throw new Error('Tidak ada URL gambar ditemukan');
+            if (currentChapter) {
+                chapters.push(currentChapter);
             }
             
-            return { comicTitle, chapterNum, imageUrls };
+            if (chapters.length === 0) {
+                throw new Error('Tidak ada chapter ditemukan');
+            }
+            
+            return { title, chapters };
         }
 
         function generateSlug(title, chapter) {
@@ -635,11 +704,37 @@
             return `${titleSlug}-chapter-${chapter}`;
         }
 
-        function generateImgCode(comicTitle, chapterNum, imageUrls) {
+        function generateImgCode(title, chapterNum, imageUrls) {
             return imageUrls.map((url, index) => {
                 const imgNum = String(index + 1).padStart(2, '0');
-                return `<img alt="${comicTitle} chapter ${chapterNum} gambar ${imgNum}" src="${url}" />`;
+                return `<img alt="${title} chapter ${chapterNum} gambar ${imgNum}" src="${url}" />`;
             }).join('\n');
+        }
+
+        function populateChapterSelect() {
+            chapterSelect.innerHTML = '';
+            
+            currentFileData.chapters.forEach(chapter => {
+                const option = document.createElement('option');
+                option.value = chapter.number;
+                option.textContent = `Chapter ${chapter.number} (${chapter.images.length} gambar)`;
+                chapterSelect.appendChild(option);
+            });
+            
+            updateChapterDisplay();
+        }
+
+        function updateChapterDisplay() {
+            const selectedChapterNum = chapterSelect.value;
+            const chapter = currentFileData.chapters.find(ch => ch.number === selectedChapterNum);
+            
+            if (!chapter) return;
+            
+            const slug = generateSlug(currentFileData.title, chapter.number);
+            const imgCode = generateImgCode(currentFileData.title, chapter.number, chapter.images);
+            
+            slugDisplay.textContent = slug;
+            imgCodeDisplay.textContent = imgCode;
         }
 
         function showToast(message) {
@@ -688,7 +783,6 @@
             result.classList.remove('show');
             
             try {
-                // Ambil file langsung dari folder yang sama dengan HTML ini
                 const response = await fetch(fileName);
                 
                 if (!response.ok) {
@@ -696,16 +790,15 @@
                 }
                 
                 const content = await response.text();
-                const { comicTitle, chapterNum, imageUrls } = parseContent(content);
+                currentFileData = parseContent(content);
                 
-                currentSlug = generateSlug(comicTitle, chapterNum);
-                currentImgCode = generateImgCode(comicTitle, chapterNum, imageUrls);
+                comicTitle.textContent = currentFileData.title;
+                comicChapterCount.textContent = `${currentFileData.chapters.length} Chapter`;
                 
-                slugDisplay.textContent = currentSlug;
-                imgCodeDisplay.textContent = currentImgCode;
+                populateChapterSelect();
+                updateStats();
                 
                 result.classList.add('show');
-                
                 result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 
             } catch (err) {
@@ -717,12 +810,14 @@
             filterFiles(e.target.value);
         });
 
+        chapterSelect.addEventListener('change', updateChapterDisplay);
+
         copySlugBtn.addEventListener('click', () => {
-            copyToClipboard(currentSlug, '✅ Slug berhasil disalin!');
+            copyToClipboard(slugDisplay.textContent, '✅ Slug berhasil disalin!');
         });
 
         copyImgBtn.addEventListener('click', () => {
-            copyToClipboard(currentImgCode, '✅ Kode IMG berhasil disalin!');
+            copyToClipboard(imgCodeDisplay.textContent, '✅ Kode IMG berhasil disalin!');
         });
 
         detectTxtFiles();

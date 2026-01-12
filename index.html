@@ -1,92 +1,521 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    
-  <title>Daftar Tugas Sekolah</title>
+    <title>Comic Slug Copier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .select-wrapper {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select:disabled {
+            background-color: #f7fafc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c53030;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .box {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+
+        .box:last-child {
+            margin-bottom: 0;
+        }
+
+        h3 {
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .content-display {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .content-display code {
+            color: #2d3748;
+            font-size: 15px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+            line-height: 1.5;
+        }
+
+        .content-display pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+            color: #2d3748;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+            line-height: 1.6;
+        }
+
+        .btn-copy {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-copy.slug {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-copy.slug:hover {
+            background: #5568d3;
+        }
+
+        .btn-copy.slug:active {
+            transform: scale(0.98);
+            background: #4c51bf;
+        }
+
+        .btn-copy.img {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-copy.img:hover {
+            background: #38a169;
+        }
+
+        .btn-copy.img:active {
+            transform: scale(0.98);
+            background: #2f855a;
+        }
+
+        .icon {
+            font-size: 18px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2d3748;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .content-display::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content-display::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .content-display::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+
+        .content-display::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .btn-copy {
+                padding: 16px;
+                font-size: 15px;
+            }
+            
+            .content-display {
+                max-height: 150px;
+                font-size: 13px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>📋 Comic Slug Copier</h1>
+        
+        <div class="select-wrapper">
+            <label for="fileSelect">Pilih File Komik:</label>
+            <select id="fileSelect" disabled>
+                <option value="">Loading...</option>
+            </select>
+        </div>
 
-    <h1>Daftar Tugas Sekolah</h1>
+        <div id="loading" class="loading">⏳ Memuat...</div>
+        <div id="error" class="error"></div>
 
-    <ul class="task-list">
-        <li class="task-item">
-            <h3>ODL ke Bali</h3>
-            <p>Deadline: Satu minggu setelah odl</p>
-            <p>Deskripsi: Membuat laporan dari kegiatan odl yang sudah dilakukan</p>
-        </li>
+        <div id="result" class="result-section">
+            <div class="box">
+                <h3><span class="icon">🔗</span> Slug Komik</h3>
+                <div class="content-display">
+                    <code id="slugDisplay"></code>
+                </div>
+                <button id="copySlugBtn" class="btn-copy slug">
+                    <span class="icon">📋</span> Salin Slug
+                </button>
+            </div>
 
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
-        
-        <li class="task-item">
-            <h3>Tugas None</h3>
-            <p>Deadline: None</p>
-            <p>Deskripsi: None</p>
-        </li>
+            <div class="box">
+                <h3><span class="icon">🖼️</span> Kode IMG</h3>
+                <div class="content-display">
+                    <pre id="imgCodeDisplay"></pre>
+                </div>
+                <button id="copyImgBtn" class="btn-copy img">
+                    <span class="icon">📋</span> Salin Kode IMG
+                </button>
+            </div>
+        </div>
 
-        <!-- Tambahkan tugas lainnya sesuai kebutuhan -->
+        <div id="toast" class="toast"></div>
+    </div>
 
-    </ul>
+    <script>
+        // Auto-detect GitHub repo info dari URL
+        const repoPath = window.location.pathname.split('/').filter(Boolean);
+        const username = repoPath[0] || 'USERNAME';
+        const repo = repoPath[1] || 'REPO';
+        const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${username}/${repo}/main/`;
+        const GITHUB_API_URL = `https://api.github.com/repos/${username}/${repo}/contents/`;
 
+        let currentSlug = '';
+        let currentImgCode = '';
+
+        const fileSelect = document.getElementById('fileSelect');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const slugDisplay = document.getElementById('slugDisplay');
+        const imgCodeDisplay = document.getElementById('imgCodeDisplay');
+        const copySlugBtn = document.getElementById('copySlugBtn');
+        const copyImgBtn = document.getElementById('copyImgBtn');
+        const toast = document.getElementById('toast');
+
+        // Deteksi semua file .txt di repository
+        async function detectTxtFiles() {
+            try {
+                loading.classList.add('show');
+                fileSelect.disabled = true;
+                
+                const response = await fetch(GITHUB_API_URL);
+                
+                if (!response.ok) {
+                    throw new Error('Tidak dapat mengakses repository');
+                }
+                
+                const files = await response.json();
+                const txtFiles = files
+                    .filter(file => file.name.endsWith('.txt'))
+                    .map(file => file.name)
+                    .sort();
+                
+                if (txtFiles.length === 0) {
+                    throw new Error('Tidak ada file .txt ditemukan di repository');
+                }
+                
+                populateFileSelect(txtFiles);
+                loading.classList.remove('show');
+                
+            } catch (err) {
+                loading.classList.remove('show');
+                showError('❌ ' + err.message);
+                fileSelect.innerHTML = '<option value="">Error loading files</option>';
+            }
+        }
+
+        function populateFileSelect(files) {
+            fileSelect.innerHTML = '<option value="">-- Pilih file .txt --</option>';
+            
+            files.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file;
+                option.textContent = file.replace('.txt', '');
+                fileSelect.appendChild(option);
+            });
+            
+            fileSelect.disabled = false;
+        }
+
+        function parseContent(content) {
+            const lines = content.trim().split('\n').filter(line => line.trim());
+            
+            if (lines.length < 2) {
+                throw new Error('Format file tidak valid');
+            }
+            
+            const comicTitle = lines[0].trim();
+            
+            const chapterMatch = lines[1].match(/\[Chapter\s+(\d+)\]/i);
+            if (!chapterMatch) {
+                throw new Error('Format chapter tidak valid. Gunakan format: [Chapter X]');
+            }
+            const chapterNum = chapterMatch[1];
+            
+            const imageUrls = lines.slice(2).filter(line => 
+                line.startsWith('http://') || line.startsWith('https://')
+            );
+            
+            if (imageUrls.length === 0) {
+                throw new Error('Tidak ada URL gambar ditemukan');
+            }
+            
+            return { comicTitle, chapterNum, imageUrls };
+        }
+
+        function generateSlug(title, chapter) {
+            const titleSlug = title.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+            
+            return `${titleSlug}-chapter-${chapter}`;
+        }
+
+        function generateImgCode(comicTitle, chapterNum, imageUrls) {
+            return imageUrls.map((url, index) => {
+                const imgNum = String(index + 1).padStart(2, '0');
+                return `<img alt="${comicTitle} chapter ${chapterNum} gambar ${imgNum}" src="${url}" />`;
+            }).join('\n');
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('show');
+            
+            setTimeout(() => {
+                error.classList.remove('show');
+            }, 5000);
+        }
+
+        async function copyToClipboard(text, successMessage) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast(successMessage);
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    showToast(successMessage);
+                } catch (e) {
+                    showToast('❌ Gagal menyalin');
+                }
+                
+                document.body.removeChild(textarea);
+            }
+        }
+
+        async function loadFile() {
+            const selectedFile = fileSelect.value;
+            
+            if (!selectedFile) {
+                return;
+            }
+            
+            loading.classList.add('show');
+            error.classList.remove('show');
+            result.classList.remove('show');
+            
+            try {
+                const url = GITHUB_RAW_URL + selectedFile;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('File tidak dapat diakses');
+                }
+                
+                const content = await response.text();
+                const { comicTitle, chapterNum, imageUrls } = parseContent(content);
+                
+                currentSlug = generateSlug(comicTitle, chapterNum);
+                currentImgCode = generateImgCode(comicTitle, chapterNum, imageUrls);
+                
+                slugDisplay.textContent = currentSlug;
+                imgCodeDisplay.textContent = currentImgCode;
+                
+                loading.classList.remove('show');
+                result.classList.add('show');
+                
+            } catch (err) {
+                loading.classList.remove('show');
+                showError('❌ Error: ' + err.message);
+            }
+        }
+
+        // Event Listeners
+        fileSelect.addEventListener('change', loadFile);
+
+        copySlugBtn.addEventListener('click', () => {
+            copyToClipboard(currentSlug, '✅ Slug berhasil disalin!');
+        });
+
+        copyImgBtn.addEventListener('click', () => {
+            copyToClipboard(currentImgCode, '✅ Kode IMG berhasil disalin!');
+        });
+
+        // Initialize
+        detectTxtFiles();
+    </script>
 </body>
-  </html>
+</html>

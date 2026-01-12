@@ -151,6 +151,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
 
         .file-item:hover {
@@ -164,19 +165,47 @@
             background: #eef2ff;
         }
 
-        .file-name {
-            font-weight: 500;
-            color: #2d3748;
-            font-size: 15px;
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
         }
 
         .file-icon {
             color: #a0aec0;
             font-size: 18px;
+            flex-shrink: 0;
         }
 
         .file-item.active .file-icon {
             color: #667eea;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #2d3748;
+            font-size: 15px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chapter-badge {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .file-item.active .chapter-badge {
+            background: #667eea;
+            color: white;
         }
 
         .no-results {
@@ -369,6 +398,15 @@
                 max-height: 150px;
                 font-size: 13px;
             }
+
+            .file-name {
+                font-size: 14px;
+            }
+
+            .chapter-badge {
+                font-size: 12px;
+                padding: 3px 10px;
+            }
         }
     </style>
 </head>
@@ -462,6 +500,13 @@
         const totalFilesEl = document.getElementById('totalFiles');
         const totalChaptersEl = document.getElementById('totalChapters');
 
+        function extractChapterNumber(fileName) {
+            const match = fileName.match(/chapter[_-]?(\d+)/i) || 
+                         fileName.match(/ch[_-]?(\d+)/i) ||
+                         fileName.match(/c(\d+)/i);
+            return match ? match[1] : null;
+        }
+
         async function detectTxtFiles() {
             try {
                 loading.classList.add('show');
@@ -497,10 +542,7 @@
             totalFilesEl.textContent = allFiles.length;
             
             const chapterCount = allFiles.reduce((count, fileName) => {
-                const match = fileName.match(/chapter[_-]?(\d+)/i) || 
-                             fileName.match(/ch[_-]?(\d+)/i) ||
-                             fileName.match(/c(\d+)/i);
-                return count + (match ? 1 : 0);
+                return count + (extractChapterNumber(fileName) ? 1 : 0);
             }, 0);
             
             totalChaptersEl.textContent = chapterCount;
@@ -521,16 +563,30 @@
                 item.className = 'file-item';
                 item.dataset.file = fileName;
                 
-                const name = document.createElement('span');
-                name.className = 'file-name';
-                name.textContent = fileName.replace('.txt', '');
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
                 
                 const icon = document.createElement('span');
                 icon.className = 'file-icon';
                 icon.textContent = '📄';
                 
-                item.appendChild(name);
-                item.appendChild(icon);
+                const name = document.createElement('span');
+                name.className = 'file-name';
+                name.textContent = fileName.replace('.txt', '');
+                
+                fileInfo.appendChild(icon);
+                fileInfo.appendChild(name);
+                
+                const chapterNum = extractChapterNumber(fileName);
+                if (chapterNum) {
+                    const badge = document.createElement('span');
+                    badge.className = 'chapter-badge';
+                    badge.textContent = `Ch ${chapterNum}`;
+                    item.appendChild(fileInfo);
+                    item.appendChild(badge);
+                } else {
+                    item.appendChild(fileInfo);
+                }
                 
                 item.addEventListener('click', () => selectFile(fileName, item));
                 

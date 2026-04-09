@@ -2,825 +2,153 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comic Slug Copier</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <title>Cinematic Player</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 16px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2d3748;
-            margin-bottom: 24px;
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .search-wrapper {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 14px 16px 14px 44px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.2s;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a0aec0;
-            font-size: 18px;
-        }
-
-        .stats {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
-            flex: 1;
-            min-width: 140px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .loading {
-            text-align: center;
-            color: #667eea;
-            font-weight: 600;
-            padding: 40px;
-            display: none;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .error {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 14px 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 4px solid #c53030;
-            font-size: 14px;
-            display: none;
-        }
-
-        .error.show {
-            display: block;
-        }
-
-        .file-list {
-            display: none;
-            margin-bottom: 20px;
-        }
-
-        .file-list.show {
-            display: block;
-        }
-
-        .list-header {
-            background: #f7fafc;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-weight: 600;
-            color: #4a5568;
-            font-size: 14px;
-        }
-
-        .file-item {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .file-item:hover {
-            border-color: #667eea;
-            background: #f7fafc;
-            transform: translateX(4px);
-        }
-
-        .file-item.active {
-            border-color: #667eea;
-            background: #eef2ff;
-        }
-
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .file-icon {
-            color: #a0aec0;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .file-item.active .file-icon {
-            color: #667eea;
-        }
-
-        .file-name {
-            font-weight: 500;
-            color: #2d3748;
-            font-size: 15px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .chapter-badge {
-            background: #edf2f7;
-            color: #4a5568;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        .file-item.active .chapter-badge {
-            background: #667eea;
-            color: white;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: #718096;
-            display: none;
-        }
-
-        .no-results.show {
-            display: block;
-        }
-
-        .result-section {
-            display: none;
-        }
-
-        .result-section.show {
-            display: block;
-        }
-
-        .comic-title {
-            background: #f7fafc;
-            padding: 16px 20px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .comic-title h2 {
-            color: #2d3748;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .comic-title p {
-            color: #718096;
-            font-size: 14px;
-        }
-
-        .chapter-selector {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-            margin-bottom: 16px;
-        }
-
-        .chapter-selector label {
-            display: block;
-            color: #2d3748;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .chapter-selector select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 15px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .chapter-selector select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .box {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-            margin-bottom: 16px;
-        }
-
-        .box:last-child {
-            margin-bottom: 0;
-        }
-
-        h3 {
-            color: #2d3748;
-            margin-bottom: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .content-display {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 14px;
-            max-height: 200px;
-            overflow-y: auto;
-            word-break: break-all;
-            margin-bottom: 12px;
-        }
-
-        .content-display code {
-            color: #2d3748;
-            font-size: 15px;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
-            line-height: 1.5;
-        }
-
-        .content-display pre {
-            margin: 0;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 13px;
-            color: #2d3748;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
-            line-height: 1.6;
-        }
-
-        .btn-copy {
-            width: 100%;
-            padding: 14px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .btn-copy.slug {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-copy.slug:hover {
-            background: #5568d3;
-        }
-
-        .btn-copy.slug:active {
-            transform: scale(0.98);
-            background: #4c51bf;
-        }
-
-        .btn-copy.img {
-            background: #48bb78;
-            color: white;
-        }
-
-        .btn-copy.img:hover {
-            background: #38a169;
-        }
-
-        .btn-copy.img:active {
-            transform: scale(0.98);
-            background: #2f855a;
-        }
-
-        .icon {
-            font-size: 18px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #2d3748;
-            color: white;
-            padding: 14px 28px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 14px;
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            pointer-events: none;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .content-display::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .content-display::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .content-display::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
-            border-radius: 10px;
-        }
-
-        .content-display::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0;
-        }
-
-        @media (max-width: 640px) {
-            body {
-                padding: 12px;
-            }
-            
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 20px;
-                margin-bottom: 20px;
-            }
-
-            .stat-card {
-                min-width: 100px;
-            }
-
-            .stat-value {
-                font-size: 24px;
-            }
-            
-            .btn-copy {
-                padding: 16px;
-                font-size: 15px;
-            }
-            
-            .content-display {
-                max-height: 150px;
-                font-size: 13px;
-            }
-
-            .file-name {
-                font-size: 14px;
-            }
-
-            .chapter-badge {
-                font-size: 12px;
-                padding: 3px 10px;
-            }
-
-            .comic-title h2 {
-                font-size: 18px;
-            }
-        }
+        body,html{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;user-select:none;background-color:#000;-webkit-tap-highlight-color:transparent}#player-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}video{width:100%;height:100%;object-fit:contain;outline:none}.vid-overlay{position:absolute;inset:0;z-index:11;cursor:pointer}.ui-layer{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(0deg,rgba(0,0,0,.9) 0,transparent 40%,transparent 100%);opacity:1;transition:opacity .3s ease;z-index:20;pointer-events:none}.ui-layer.idle{opacity:0}.top-bar{position:absolute;top:0;left:0;right:0;padding:20px;background:linear-gradient(180deg,rgba(0,0,0,.8) 0,transparent 100%);display:flex;flex-direction:column;gap:5px;pointer-events:auto}.s-title{color:#fff;font-size:max(16px,min(4vw,18px));font-weight:600;text-shadow:1px 1px 3px #000}.e-title{color:#ddd;font-size:max(12px,min(3vw,14px));text-shadow:1px 1px 3px #000}.controls{padding:10px 15px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;pointer-events:auto}.progress-wrap{width:100%;height:15px;display:flex;align-items:center;cursor:pointer;position:relative}.progress-bg{width:100%;height:4px;background:rgba(255,255,255,.2);border-radius:2px;position:relative}.progress-fill{height:100%;background:#e50914;width:0;border-radius:2px;position:absolute;top:0;left:0}.progress-fill::after{content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%) scale(0);width:12px;height:12px;background:#e50914;border-radius:50%;transition:transform .2s}.progress-wrap:hover .progress-fill::after,.progress-wrap:active .progress-fill::after{transform:translateY(-50%) scale(1)}.btn{background:0 0;border:none;color:#fff;cursor:pointer;font-size:22px;padding:0;display:flex;align-items:center;justify-content:center;transition:transform .1s}.btn:active{transform:scale(.8)}.vol-wrap{display:flex;align-items:center;gap:5px}.vol-track{width:0;height:4px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;overflow:hidden;transition:width .3s ease;opacity:0}@media(hover:hover){.vol-wrap:hover .vol-track{width:60px;opacity:1}}.vol-fill{height:100%;background:#fff;width:100%;pointer-events:none}.time-txt{color:#eee;font-size:13px;font-variant-numeric:tabular-nums;margin-right:auto}.q-select{background:rgba(20,20,20,.8);color:#fff;border:1px solid rgba(255,255,255,.2);padding:6px 10px;border-radius:5px;font-size:13px;cursor:pointer;outline:none}.btn-text{font-size:13px;background:rgba(20,20,20,.8);border:1px solid rgba(255,255,255,.2);padding:6px 12px;border-radius:5px;display:none;align-items:center;gap:5px}.buffering{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border:4px solid rgba(255,255,255,.2);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite;display:none;pointer-events:none}#thumb-preview{position:absolute;bottom:25px;width:160px;height:90px;background-color:#111;background-size:auto;background-repeat:no-repeat;border:2px solid #fff;border-radius:4px;display:none;pointer-events:none;transform:translateX(-50%);z-index:30;box-shadow:0 4px 10px rgba(0,0,0,.5)}@keyframes spin{100%{transform:translate(-50%,-50%) rotate(360deg)}}.show-buf .buffering{display:block}.eps-drawer{position:absolute;top:0;bottom:0;right:-320px;width:100%;max-width:300px;background:rgba(15,15,15,.95);z-index:50;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,.1);box-shadow:-5px 0 15px rgba(0,0,0,.5);backdrop-filter:blur(10px)}.eps-drawer.open{right:0}.drawer-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:40;opacity:0;pointer-events:none;transition:opacity .3s}.drawer-backdrop.open{opacity:1;pointer-events:auto}.drawer-header{padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;font-weight:bold;font-size:15px}.close-drawer{background:0 0;border:none;color:#fff;font-size:24px;cursor:pointer}.search-box{padding:10px 15px}.search-box input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:10px 14px;border-radius:20px;color:#fff;font-size:14px;outline:none}.eps-grid{flex:1;overflow-y:auto;padding:0 15px 15px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start}.ep-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 0;border-radius:6px;cursor:pointer;font-size:14px;text-align:center;transition:background .2s}.ep-btn.active{background:#e50914;border-color:#e50914;font-weight:bold}.center-action{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(1);width:70px;height:70px;background:rgba(0,0,0,.5);border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:30px;color:#fff;pointer-events:none;opacity:0;backdrop-filter:blur(5px);z-index:25}.center-action.pop{animation:popAnim .5s cubic-bezier(.175,.885,.32,1.275) forwards}@keyframes popAnim{0%{opacity:1;transform:translate(-50%,-50%) scale(.8)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}.ripple-zone{position:absolute;top:0;bottom:0;width:40%;pointer-events:none;z-index:25;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;opacity:0;background:radial-gradient(circle,rgba(255,255,255,.15) 0,transparent 60%)}.ripple-zone.left{left:0;background-position:left center;border-top-right-radius:50%;border-bottom-right-radius:50%}.ripple-zone.right{right:0;background-position:right center;border-top-left-radius:50%;border-bottom-left-radius:50%}.ripple-zone.active{animation:rippleAnim .6s ease-out forwards}.r-icon{font-size:28px;margin-bottom:5px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}.r-text{font-size:13px;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,.8)}@keyframes rippleAnim{0%{opacity:1}100%{opacity:0}}@media screen and (max-width:600px){.controls{padding:8px 10px 15px;gap:6px}.progress-wrap{flex:1 1 100%;margin-bottom:8px}.btn{font-size:18px!important;width:28px!important}.time-txt{font-size:11px;margin-right:auto}.btn-text,.q-select{padding:4px 8px;font-size:11px}.vol-wrap{display:none!important}.s-title{font-size:14px}.e-title{font-size:12px}#thumb-preview{width:120px;height:67px;background-size:1200px auto!important}}@media screen and (max-height:400px) and (orientation:landscape){.top-bar{padding:10px}.controls{padding:5px 15px 10px}.s-title{display:none}}
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📋 Comic Slug Copier</h1>
-
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-label">Total Files</div>
-                <div class="stat-value" id="totalFiles">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Chapters</div>
-                <div class="stat-value" id="totalChapters">0</div>
+    <div id="player-wrap">
+        <video id="vid" playsinline></video>
+        <div class="vid-overlay" id="vid-click"></div>
+        <div class="buffering" id="buf" style="display:block;"></div> <div class="center-action" id="c-action">▶</div>
+        <div class="ripple-zone left" id="r-left"><div class="r-icon">⏪</div><div class="r-text">10s</div></div>
+        <div class="ripple-zone right" id="r-right"><div class="r-icon">⏩</div><div class="r-text">10s</div></div>
+        
+        <div class="ui-layer" id="ui">
+            <div class="top-bar"><div class="s-title" id="s-title">Memuat Data...</div><div class="e-title" id="e-title"></div></div>
+            <div class="controls">
+                <div class="progress-wrap" id="p-wrap">
+                    <div class="progress-bg"><div class="progress-fill" id="p-fill"></div></div>
+                    <div id="thumb-preview"></div>
+                </div>
+                <button class="btn" style="width:34px" id="btn-play">▶</button>
+                <div class="vol-wrap" id="vol-wrap">
+                    <button class="btn" style="width:34px" id="btn-vol">🔊</button>
+                    <div class="vol-track" id="v-track"><div class="vol-fill" id="v-fill"></div></div>
+                </div>
+                <span class="time-txt" id="time">00:00 / 00:00</span>
+                <button class="btn btn-text" id="btn-eps">Eps 1 ☰</button>
+                <select class="q-select" id="q-sel"></select>
+                <button class="btn" style="width:34px" id="btn-fs">⛶</button>
             </div>
         </div>
         
-        <div class="search-wrapper">
-            <span class="search-icon">🔍</span>
-            <input 
-                type="text" 
-                id="searchInput" 
-                class="search-input" 
-                placeholder="Cari file komik..."
-                autocomplete="off"
-            >
+        <div class="drawer-backdrop" id="d-backdrop"></div>
+        <div class="eps-drawer" id="eps-drawer">
+            <div class="drawer-header"><span>Daftar Episode</span><button class="close-drawer" id="close-drawer">✕</button></div>
+            <div class="search-box"><input type="number" id="eps-search" placeholder="Cari episode..."></div>
+            <div class="eps-grid" id="eps-grid"></div>
         </div>
-
-        <div id="loading" class="loading">⏳ Memuat file...</div>
-        <div id="error" class="error"></div>
-
-        <div id="fileList" class="file-list">
-            <div class="list-header">📁 Daftar File Komik</div>
-            <div id="fileListContainer"></div>
-            <div id="noResults" class="no-results">
-                <div style="font-size: 48px; margin-bottom: 12px;">🔍</div>
-                <div>Tidak ada file yang ditemukan</div>
-            </div>
-        </div>
-
-        <div id="result" class="result-section">
-            <div class="comic-title">
-                <h2 id="comicTitle"></h2>
-                <p id="comicChapterCount"></p>
-            </div>
-
-            <div class="chapter-selector">
-                <label for="chapterSelect">📖 Pilih Chapter</label>
-                <select id="chapterSelect"></select>
-            </div>
-
-            <div class="box">
-                <h3><span class="icon">🔗</span> Slug Komik</h3>
-                <div class="content-display">
-                    <code id="slugDisplay"></code>
-                </div>
-                <button id="copySlugBtn" class="btn-copy slug">
-                    <span class="icon">📋</span> Salin Slug
-                </button>
-            </div>
-
-            <div class="box">
-                <h3><span class="icon">🖼️</span> Kode IMG</h3>
-                <div class="content-display">
-                    <pre id="imgCodeDisplay"></pre>
-                </div>
-                <button id="copyImgBtn" class="btn-copy img">
-                    <span class="icon">📋</span> Salin Kode IMG
-                </button>
-            </div>
-        </div>
-
-        <div id="toast" class="toast"></div>
     </div>
 
     <script>
-        const availableFiles = [
-            'file1.txt',
-        ];
+        // ========================================================
+        // 1. TAUTAN KE API WORKER ANDA (WAJIB DIGANTI)
+        // ========================================================
+        const WORKER_URL = "https://WORKER-ANDA.nama-anda.workers.dev"; // <<-- GANTI INI
+        
+        let DATA = null;
+        let currIdx = 0;
+        let prefQ = "480p";
 
-        let allFiles = [];
-        let currentFileData = null;
-        let selectedFile = null;
-
-        const searchInput = document.getElementById('searchInput');
-        const loading = document.getElementById('loading');
-        const error = document.getElementById('error');
-        const fileList = document.getElementById('fileList');
-        const fileListContainer = document.getElementById('fileListContainer');
-        const noResults = document.getElementById('noResults');
-        const result = document.getElementById('result');
-        const comicTitle = document.getElementById('comicTitle');
-        const comicChapterCount = document.getElementById('comicChapterCount');
-        const chapterSelect = document.getElementById('chapterSelect');
-        const slugDisplay = document.getElementById('slugDisplay');
-        const imgCodeDisplay = document.getElementById('imgCodeDisplay');
-        const copySlugBtn = document.getElementById('copySlugBtn');
-        const copyImgBtn = document.getElementById('copyImgBtn');
-        const toast = document.getElementById('toast');
-        const totalFilesEl = document.getElementById('totalFiles');
-        const totalChaptersEl = document.getElementById('totalChapters');
-
-        function extractChapterNumber(fileName) {
-            const match = fileName.match(/chapter[_-]?(\d+)/i) || 
-                         fileName.match(/ch[_-]?(\d+)/i) ||
-                         fileName.match(/c(\d+)/i);
-            return match ? match[1] : null;
-        }
-
-        function detectTxtFiles() {
-            loading.classList.add('show');
-            
-            setTimeout(() => {
-                allFiles = availableFiles.filter(file => file.endsWith('.txt')).sort();
-                
-                if (allFiles.length === 0) {
-                    loading.classList.remove('show');
-                    showError('❌ Tidak ada file .txt ditemukan');
-                    return;
-                }
-                
-                updateStats();
-                renderFileList(allFiles);
-                loading.classList.remove('show');
-                fileList.classList.add('show');
-            }, 500);
-        }
-
-        function updateStats() {
-            totalFilesEl.textContent = allFiles.length;
-            
-            const chapterCount = currentFileData ? currentFileData.chapters.length : 0;
-            totalChaptersEl.textContent = chapterCount;
-        }
-
-        function renderFileList(files) {
-            fileListContainer.innerHTML = '';
-            
-            if (files.length === 0) {
-                noResults.classList.add('show');
-                return;
-            }
-            
-            noResults.classList.remove('show');
-            
-            files.forEach(fileName => {
-                const item = document.createElement('div');
-                item.className = 'file-item';
-                item.dataset.file = fileName;
-                
-                const fileInfo = document.createElement('div');
-                fileInfo.className = 'file-info';
-                
-                const icon = document.createElement('span');
-                icon.className = 'file-icon';
-                icon.textContent = '📄';
-                
-                const name = document.createElement('span');
-                name.className = 'file-name';
-                name.textContent = fileName.replace('.txt', '');
-                
-                fileInfo.appendChild(icon);
-                fileInfo.appendChild(name);
-                item.appendChild(fileInfo);
-                
-                item.addEventListener('click', () => selectFile(fileName, item));
-                
-                fileListContainer.appendChild(item);
-            });
-        }
-
-        async function selectFile(fileName, itemElement) {
-            if (selectedFile) {
-                selectedFile.classList.remove('active');
-            }
-            
-            selectedFile = itemElement;
-            selectedFile.classList.add('active');
-            
-            await loadFile(fileName);
-        }
-
-        function filterFiles(searchTerm) {
-            const filtered = allFiles.filter(file => 
-                file.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            renderFileList(filtered);
-        }
-
-        function parseContent(content) {
-            const lines = content.trim().split('\n').map(line => line.trim()).filter(line => line);
-            
-            if (lines.length < 2) {
-                throw new Error('Format file tidak valid');
-            }
-            
-            const title = lines[0];
-            const chapters = [];
-            let currentChapter = null;
-            
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i];
-                const chapterMatch = line.match(/\[Chapter\s+(\d+)\]/i);
-                
-                if (chapterMatch) {
-                    if (currentChapter) {
-                        chapters.push(currentChapter);
-                    }
-                    currentChapter = {
-                        number: chapterMatch[1],
-                        images: []
-                    };
-                } else if (currentChapter && (line.startsWith('http://') || line.startsWith('https://'))) {
-                    currentChapter.images.push(line);
-                }
-            }
-            
-            if (currentChapter) {
-                chapters.push(currentChapter);
-            }
-            
-            if (chapters.length === 0) {
-                throw new Error('Tidak ada chapter ditemukan');
-            }
-            
-            return { title, chapters };
-        }
-
-        function generateSlug(title, chapter) {
-            const titleSlug = title.toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-')
-                .trim();
-            
-            return `${titleSlug}-chapter-${chapter}`;
-        }
-
-        function generateImgCode(title, chapterNum, imageUrls) {
-            return imageUrls.map((url, index) => {
-                const imgNum = String(index + 1).padStart(2, '0');
-                return `<img alt="${title} chapter ${chapterNum} gambar ${imgNum}" src="${url}" />`;
-            }).join('\n');
-        }
-
-        function populateChapterSelect() {
-            chapterSelect.innerHTML = '';
-            
-            currentFileData.chapters.forEach(chapter => {
-                const option = document.createElement('option');
-                option.value = chapter.number;
-                option.textContent = `Chapter ${chapter.number} (${chapter.images.length} gambar)`;
-                chapterSelect.appendChild(option);
-            });
-            
-            updateChapterDisplay();
-        }
-
-        function updateChapterDisplay() {
-            const selectedChapterNum = chapterSelect.value;
-            const chapter = currentFileData.chapters.find(ch => ch.number === selectedChapterNum);
-            
-            if (!chapter) return;
-            
-            const slug = generateSlug(currentFileData.title, chapter.number);
-            const imgCode = generateImgCode(currentFileData.title, chapter.number, chapter.images);
-            
-            slugDisplay.textContent = slug;
-            imgCodeDisplay.textContent = imgCode;
-        }
-
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-        }
-
-        function showError(message) {
-            error.textContent = message;
-            error.classList.add('show');
-            
-            setTimeout(() => {
-                error.classList.remove('show');
-            }, 5000);
-        }
-
-        async function copyToClipboard(text, successMessage) {
-            try {
-                await navigator.clipboard.writeText(text);
-                showToast(successMessage);
-            } catch (err) {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                
-                try {
-                    document.execCommand('copy');
-                    showToast(successMessage);
-                } catch (e) {
-                    showToast('❌ Gagal menyalin');
-                }
-                
-                document.body.removeChild(textarea);
-            }
-        }
-
-        async function loadFile(fileName) {
-            error.classList.remove('show');
-            result.classList.remove('show');
+        const $ = id => document.getElementById(id);
+        const vid=$("vid"),vidClick=$("vid-click"),ui=$("ui"),pWrap=$("p-wrap"),pFill=$("p-fill"),btnPlay=$("btn-play"),time=$("time"),qSel=$("q-sel"),btnEps=$("btn-eps"),epsDrawer=$("eps-drawer"),dBackdrop=$("d-backdrop"),closeDrawer=$("close-drawer"),epsSearch=$("eps-search"),epsGrid=$("eps-grid"),btnFs=$("btn-fs"),wrap=$("player-wrap"),thumbPreview=$("thumb-preview"),btnVol=$("btn-vol"),vTrack=$("v-track"),vFill=$("v-fill"),cAction=$("c-action"),rLeft=$("r-left"),rRight=$("r-right");
+        
+        // ========================================================
+        // 2. SISTEM FETCH DATA DARI API (DECOUPLED LOGIC)
+        // ========================================================
+        async function fetchApiData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type'); // multi atau series
             
             try {
-                const response = await fetch(fileName);
-                
-                if (!response.ok) {
-                    throw new Error('File tidak dapat diakses');
+                let apiEndpoint = "";
+                if (type === 'series') {
+                    const id = urlParams.get('id');
+                    const eps = urlParams.get('eps') || '';
+                    apiEndpoint = `${WORKER_URL}/api/series?id=${id}&eps=${eps}`;
+                } else if (type === 'multi') {
+                    const d = urlParams.get('d');
+                    apiEndpoint = `${WORKER_URL}/api/multi?d=${d}`;
+                } else {
+                    throw new Error("Parameter '?type=' tidak ditemukan pada URL.");
                 }
+
+                const response = await fetch(apiEndpoint);
+                const json = await response.json();
+
+                if (json.error) throw new Error(json.error);
+
+                DATA = json;
+                currIdx = DATA.initialIndex || 0;
+                $("buf").style.display = "none"; // Matikan loading awal
+                initPlayer(); // Jalankan player
                 
-                const content = await response.text();
-                currentFileData = parseContent(content);
-                
-                comicTitle.textContent = currentFileData.title;
-                comicChapterCount.textContent = `${currentFileData.chapters.length} Chapter`;
-                
-                populateChapterSelect();
-                updateStats();
-                
-                result.classList.add('show');
-                result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                
-            } catch (err) {
-                showError('❌ Error: ' + err.message);
+            } catch (error) {
+                $("buf").style.display = "none";
+                $("s-title").innerText = "Gagal Memuat Video";
+                $("e-title").innerText = error.message;
+                console.error(error);
             }
         }
 
-        searchInput.addEventListener('input', (e) => {
-            filterFiles(e.target.value);
-        });
-
-        chapterSelect.addEventListener('change', updateChapterDisplay);
-
-        copySlugBtn.addEventListener('click', () => {
-            copyToClipboard(slugDisplay.textContent, '✅ Slug berhasil disalin!');
-        });
-
-        copyImgBtn.addEventListener('click', () => {
-            copyToClipboard(imgCodeDisplay.textContent, '✅ Kode IMG berhasil disalin!');
-        });
-
-        detectTxtFiles();
+        // ========================================================
+        // 3. SISTEM UI & LOGIKA PLAYER (TETAP SEPERTI V14)
+        // ========================================================
+        let idleT;
+        const fmt=s=>{const m=Math.floor(s/60),x=Math.floor(s%60);return(m<10?"0"+m:m)+":"+(x<10?"0"+x:x)};
+        const wake=()=>{ui.classList.remove("idle");clearTimeout(idleT);idleT=setTimeout(()=>ui.classList.add("idle"),4000)};
+        ["mousemove","touchstart"].forEach(e=>document.addEventListener(e,wake));
+        
+        const popCenter=icon=>{cAction.innerText=icon;cAction.classList.remove("pop");void cAction.offsetWidth;cAction.classList.add("pop")};
+        const popRipple=side=>{const el=side==="left"?rLeft:rRight;el.classList.remove("active");void el.offsetWidth;el.classList.add("active")};
+        
+        const renderGrid=(filter="")=>{epsGrid.innerHTML=DATA.episodes.map((e,i)=>({e:e,i:i})).filter(o=>!filter||o.e.n.toString().includes(filter)).map(o=>'<button class="ep-btn '+(o.i===currIdx?'active':'')+'" data-idx="'+o.i+'">'+o.e.n+'</button>').join("");document.querySelectorAll(".ep-btn").forEach(b=>b.onclick=(ev)=>{currIdx=parseInt(ev.target.dataset.idx);loadVideo(currIdx);vid.play();closeD();wake()})};
+        
+        const loadVideo=idx=>{currIdx=idx;const ep=DATA.episodes[idx];$("s-title").innerText=DATA.title;$("e-title").innerText="Episode "+ep.n+(ep.t?" - "+ep.t:"");vid.poster=ep.tu||"";btnEps.innerText="Eps "+ep.n+" ☰";const options=Object.keys(ep.q);qSel.innerHTML=options.map(k=>'<option value="'+k+'">'+k+'</option>').join("");if(options.includes(prefQ))qSel.value=prefQ;else if(options.includes("480p"))qSel.value="480p";else qSel.value=options[0];vid.src=ep.q[qSel.value];vid.load()};
+        
+        const initPlayer=()=>{if(DATA.isSeries&&DATA.episodes.length>1)btnEps.style.display="flex";loadVideo(currIdx)};
+        
+        const openD=()=>{epsDrawer.classList.add("open");dBackdrop.classList.add("open");renderGrid()};
+        const closeD=()=>{epsDrawer.classList.remove("open");dBackdrop.classList.remove("open")};
+        btnEps.onclick=openD;closeDrawer.onclick=closeD;dBackdrop.onclick=closeD;epsSearch.oninput=e=>renderGrid(e.target.value);
+        let dStartX=0;epsDrawer.addEventListener("touchstart",e=>dStartX=e.touches[0].clientX,{passive:true});epsDrawer.addEventListener("touchend",e=>{if(e.changedTouches[0].clientX-dStartX>50)closeD()},{passive:true});
+        
+        qSel.onchange=()=>{prefQ=qSel.value;const t=vid.currentTime;const p=!vid.paused;vid.src=DATA.episodes[currIdx].q[prefQ];vid.currentTime=t;if(p)vid.play();wake()};
+        btnPlay.onclick=()=>vid.paused?vid.play():vid.pause();
+        vid.onplay=()=>{btnPlay.innerText="⏸";popCenter("▶");wake()};
+        vid.onpause=()=>{btnPlay.innerText="▶";popCenter("⏸");wake()};
+        
+        const getClientX=e=>e.touches&&e.touches.length>0?e.touches[0].clientX:(e.changedTouches&&e.changedTouches.length>0?e.changedTouches[0].clientX:e.clientX);
+        let isDragTime=false,wasPlaying=false;
+        const updateTimeUI=e=>{const r=pWrap.getBoundingClientRect();const cX=getClientX(e);const p=Math.max(0,Math.min(1,(cX-r.left)/r.width));pFill.style.width=(p*100)+"%";time.innerText=fmt(p*vid.duration)+" / "+(vid.duration?fmt(vid.duration):"00:00");return p};
+        const handleScrub=clientX=>{if(!DATA)return;const ep=DATA.episodes[currIdx];if(!ep.ts)return;const r=pWrap.getBoundingClientRect();const p=Math.max(0,Math.min(1,(clientX-r.left)/r.width));if(vid.duration){const hT=p*vid.duration;const idx=Math.floor(hT/10);const col=idx%10,row=Math.floor(idx/10);thumbPreview.style.backgroundImage="url("+ep.ts+")";thumbPreview.style.backgroundPosition="-"+(col*160)+"px -"+(row*90)+"px";let lPos=clientX-r.left;if(lPos<80)lPos=80;if(lPos>r.width-80)lPos=r.width-80;thumbPreview.style.left=lPos+"px";thumbPreview.style.display="block"}};
+        const startDrag=e=>{isDragTime=true;wasPlaying=!vid.paused;vid.pause();vid.currentTime=updateTimeUI(e)*vid.duration};
+        const moveDrag=e=>{if(!isDragTime)return;e.preventDefault();vid.currentTime=updateTimeUI(e)*vid.duration;handleScrub(getClientX(e))};
+        const endDrag=e=>{if(!isDragTime)return;isDragTime=false;vid.currentTime=updateTimeUI(e)*vid.duration;if(wasPlaying)vid.play();thumbPreview.style.display="none"};
+        pWrap.addEventListener("mousedown",startDrag);pWrap.addEventListener("touchstart",startDrag,{passive:false});document.addEventListener("mousemove",moveDrag);document.addEventListener("touchmove",moveDrag,{passive:false});document.addEventListener("mouseup",endDrag);document.addEventListener("touchend",endDrag);pWrap.addEventListener("mousemove",e=>{if(!isDragTime)handleScrub(e.clientX)});pWrap.addEventListener("mouseleave",()=>{if(!isDragTime)thumbPreview.style.display="none"});
+        
+        vid.ontimeupdate=()=>{if(!isDragTime){pFill.style.width=(vid.currentTime/vid.duration)*100+"%";time.innerText=fmt(vid.currentTime)+" / "+(vid.duration?fmt(vid.duration):"00:00")}};
+        vid.onwaiting=()=>wrap.classList.add("show-buf");vid.onplaying=()=>wrap.classList.remove("show-buf");
+        btnFs.onclick=()=>{if(!document.fullscreenElement)wrap.requestFullscreen().catch(()=>{});else document.exitFullscreen()};
+        
+        let tapT=0,tapTimer;
+        vidClick.onclick=e=>{const now=Date.now();if(now-tapT<250){clearTimeout(tapTimer);const r=vidClick.getBoundingClientRect();if(e.clientX<r.left+r.width/2){vid.currentTime=Math.max(0,vid.currentTime-10);popRipple("left")}else{vid.currentTime=Math.min(vid.duration,vid.currentTime+10);popRipple("right")}tapT=0}else{tapT=now;tapTimer=setTimeout(()=>{if(vid.paused)vid.play();else vid.pause()},250)}wake()};
+        
+        let lastVol=1,isDragVol=false;
+        const updateVol=()=>{vFill.style.width=(vid.volume*100)+"%";if(vid.muted||vid.volume===0)btnVol.innerText="🔇";else if(vid.volume<0.5)btnVol.innerText="🔉";else btnVol.innerText="🔊"};
+        btnVol.onclick=()=>{if(vid.muted||vid.volume===0){vid.muted=false;vid.volume=lastVol>0?lastVol:1}else{lastVol=vid.volume;vid.muted=true}updateVol();wake()};
+        const setVol=e=>{const r=vTrack.getBoundingClientRect();const v=Math.max(0,Math.min(1,(getClientX(e)-r.left)/r.width));vid.muted=false;vid.volume=v;lastVol=v;updateVol()};
+        vTrack.addEventListener("mousedown",e=>{isDragVol=true;setVol(e)});vTrack.addEventListener("touchstart",e=>{isDragVol=true;setVol(e);e.preventDefault()},{passive:false});document.addEventListener("mousemove",e=>{if(isDragVol)setVol(e)});document.addEventListener("touchmove",e=>{if(isDragVol){e.preventDefault();setVol(e)}},{passive:false});document.addEventListener("mouseup",()=>isDragVol=false);document.addEventListener("touchend",()=>isDragVol=false);vid.onvolumechange=updateVol;
+        
+        document.addEventListener("keydown",e=>{if(document.activeElement.tagName==="INPUT")return;const k=e.key.toLowerCase();if([" ","k","f","arrowright","l","arrowleft","j","m","arrowup","arrowdown"].includes(k))wake();switch(k){case" ":case"k":e.preventDefault();if(vid.paused)vid.play();else vid.pause();break;case"f":e.preventDefault();btnFs.click();break;case"arrowright":case"l":if(!DATA)break;vid.currentTime=Math.min(vid.duration,vid.currentTime+10);popRipple("right");break;case"arrowleft":case"j":if(!DATA)break;vid.currentTime=Math.max(0,vid.currentTime-10);popRipple("left");break;case"m":vid.muted=!vid.muted;break;case"arrowup":e.preventDefault();vid.volume=Math.min(1,vid.volume+.1);break;case"arrowdown":e.preventDefault();vid.volume=Math.max(0,vid.volume-.1);break;}});
+        
+        // ========================================================
+        // 4. JALANKAN PROSES FETCH SAAT HALAMAN DIBUKA
+        // ========================================================
+        fetchApiData();
     </script>
 </body>
 </html>
